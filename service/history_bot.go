@@ -26,6 +26,7 @@ func NewSlackHistoryBot(config *conf.SlackBotConfig) *SlackHistoryBot {
 	pb.config = config
 	pb.logger = log.NewLogger("slack_history_bot")
 	pb.services = make(map[string]Service)
+	pb.AddService(&SearchService{})
 	pb.AddService(&SlackService{})
 	return pb
 }
@@ -73,4 +74,12 @@ func (pb *SlackHistoryBot) Stop() {
 // WaitStop blocks main thread and waits when all goroutines will be stopped
 func (pb *SlackHistoryBot) WaitStop() {
 	pb.waitGroup.Wait()
+}
+
+func (pb *SlackHistoryBot) SearchService() *SearchService {
+	service, ok := pb.services["search_service"]
+	if !ok {
+		pb.logger.Error("search service not found")
+	}
+	return service.(*SearchService)
 }
