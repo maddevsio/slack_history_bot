@@ -1,6 +1,9 @@
 package service
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/gen1us2k/log"
 	"github.com/nlopes/slack"
 )
@@ -10,6 +13,7 @@ type SlackService struct {
 	logger log.Logger
 	sh     *SlackHistoryBot
 	rtm    *slack.RTM
+	me     string
 }
 
 func (ss *SlackService) Name() string {
@@ -30,16 +34,25 @@ func (ss *SlackService) Init(sh *SlackHistoryBot) error {
 func (ss *SlackService) Run() error {
 	go ss.rtm.ManageConnection()
 	for {
+		if ss.me == "" {
+			me := ss.rtm.GetInfo()
+			if me != nil {
+				ss.me = me.User.ID
+				ss.logger.Info("I've found myself")
+			}
+		}
 		select {
 		case msg := <-ss.rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
 			case *slack.HelloEvent:
 				//
 			case *slack.ConnectedEvent:
-				ss.rtm.SendMessage(ss.rtm.NewOutgoingMessage("Hello world", "#general"))
-
+				ss.rtm.SendMessage(ss.rtm.NewOutgoingMessage("Hello world", "C22UWDUQ3"))
 			case *slack.MessageEvent:
-				ss.logger.Infof("Message: %v\n", ev)
+				ss.logger.Infof("Message %s from channel %s from user %s at %s", ev.Msg.Text, ev.Channel, ev.Msg.User, ev.Msg.Timestamp)
+				if ss.isToMe(ev.Msg.Text) {
+					ss.logger.Info("I have a new message")
+				}
 
 			case *slack.PresenceChangeEvent:
 				ss.logger.Infof("Presence Change: %v\n", ev)
@@ -61,4 +74,8 @@ func (ss *SlackService) Run() error {
 		}
 	}
 	return nil
+}
+
+func (ss *SlackService) isToMe(message string) bool {
+	return strings.Contains(message, fmt.Sprintf("<@%s>", ss.me))
 }
