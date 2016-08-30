@@ -2,3 +2,4 @@ slackhistorybot
 history_bot
 *.sw[o,p]
 .env
+history.bleve

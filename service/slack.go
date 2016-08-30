@@ -10,11 +10,12 @@ import (
 
 type SlackService struct {
 	BaseService
-	logger log.Logger
-	sh     *SlackHistoryBot
-	rtm    *slack.RTM
-	search *SearchService
-	me     string
+	logger   log.Logger
+	sh       *SlackHistoryBot
+	rtm      *slack.RTM
+	search   *SearchService
+	slackAPI *slack.Client
+	me       string
 }
 
 func (ss *SlackService) Name() string {
@@ -27,6 +28,7 @@ func (ss *SlackService) Init(sh *SlackHistoryBot) error {
 	api := slack.New(ss.sh.Config().SlackToken)
 	ss.rtm = api.NewRTM()
 	ss.search = ss.sh.SearchService()
+	ss.slackAPI = api
 	return nil
 }
 
@@ -43,10 +45,8 @@ func (ss *SlackService) Run() error {
 		select {
 		case msg := <-ss.rtm.IncomingEvents:
 			switch ev := msg.Data.(type) {
-			case *slack.HelloEvent:
-				//
 			case *slack.ConnectedEvent:
-				ss.rtm.SendMessage(ss.rtm.NewOutgoingMessage("Hello world", "C22UWDUQ3"))
+				ss.logger.Info("Bot connected!")
 			case *slack.MessageEvent:
 				if ss.isToMe(ev.Msg.Text) {
 					ss.logger.Info("I have a new message")
@@ -55,10 +55,9 @@ func (ss *SlackService) Run() error {
 						ss.logger.Error(err)
 					}
 					message := fmt.Sprintf("+%v", res)
-					ss.rtm.SendMessage(ss.rtm.NewOutgoingMessage(message, ev.Channel))
+					ss.slackAPI.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
 					continue
 				}
-				ss.logger.Infof("Message %v", ev)
 				ss.logger.Infof("Message %s from channel %s from user %s at %s", ev.Msg.Text, ev.Channel, ev.Msg.User, ev.Msg.Timestamp)
 				ss.search.IndexMessage(IndexData{
 					ID:        fmt.Sprintf("%s-%s", ev.Msg.User, ev.Msg.Timestamp),
@@ -67,9 +66,6 @@ func (ss *SlackService) Run() error {
 					Channel:   ev.Channel,
 					Timestamp: ev.Timestamp,
 				})
-
-			case *slack.PresenceChangeEvent:
-				ss.logger.Infof("Presence Change: %v\n", ev)
 
 			case *slack.LatencyReport:
 				ss.logger.Infof("Current latency: %v\n", ev.Value)
@@ -82,7 +78,6 @@ func (ss *SlackService) Run() error {
 				break
 
 			default:
-				//
 				continue
 			}
 		}

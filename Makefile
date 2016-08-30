@@ -6,10 +6,10 @@ clean:
 	rm -rf $(TARGET)
 
 depends:
-	go get -u -v
+	go get -u -v -tags 'goleveldb libstemmer' ./...
 
 build:
-	go build -v -o  $(TARGET) main.go
+	go build -tags 'goleveldb libstemmer'  -v -o  $(TARGET) main.go
 
 fmt:
 	go fmt ./...
