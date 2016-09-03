@@ -78,7 +78,7 @@ func (ss *SearchService) IndexMessage(data IndexData) error {
 
 func (ss *SearchService) Search(query, channel string) (*bleve.SearchResult, error) {
 	ch := bleve.NewTermQuery(channel)
-	mq := bleve.NewMatchQuery(query)
+	mq := bleve.NewFuzzyQuery(query)
 	q := bleve.NewConjunctionQuery([]bleve.Query{ch, mq})
 	search := bleve.NewSearchRequest(q)
 	search.Fields = []string{"message", "channel"}
