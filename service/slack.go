@@ -2,7 +2,9 @@ package service
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gen1us2k/log"
 	"github.com/nlopes/slack"
@@ -49,14 +51,39 @@ func (ss *SlackService) Run() error {
 				ss.logger.Info("Bot connected!")
 			case *slack.MessageEvent:
 				if ss.isToMe(ev.Msg.Text) {
-					ss.logger.Info("I have a new message")
+					ss.logger.Infof("Searching query %s for channel %s", ev.Text, ev.Channel)
+					found := false
 					res, err := ss.search.Search(ss.cleanMessage(ev.Text), ev.Channel)
 					if err != nil {
 						ss.logger.Error(err)
 					}
-					message := fmt.Sprintf("+%v", res)
-					ss.slackAPI.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+					for _, item := range res.Hits {
+						result := item.Fields
+						if result["channel"] == ev.Channel {
+							user := ss.rtm.GetInfo().GetUserByID(result["username"].(string))
+							if user != nil {
+								times := strings.Split(result["timestamp"].(string), ".")
+								i, err := strconv.ParseInt(times[0], 10, 64)
+								if err != nil {
+									ss.logger.Errorf("Error while converting time, %v", err)
+								}
+								at := time.Unix(i, 0)
+
+								message := fmt.Sprintf(">[%s] %s: %s", at, user.Name, result["message"].(string))
+								ss.logger.Infof("Sending message %s to channel %s", message, ev.Channel)
+								ss.slackAPI.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+								found = true
+							}
+						}
+					}
+					if !found {
+						ss.slackAPI.PostMessage(ev.Channel, "Not found", slack.PostMessageParameters{})
+					}
 					continue
+				}
+				if ev.Msg.User == ss.me {
+					continue
+					ss.logger.Info("Skipping mine post")
 				}
 				ss.logger.Infof("Message %s from channel %s from user %s at %s", ev.Msg.Text, ev.Channel, ev.Msg.User, ev.Msg.Timestamp)
 				ss.search.IndexMessage(IndexData{
