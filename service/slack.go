@@ -50,7 +50,7 @@ func (ss *SlackService) Run() error {
 			case *slack.MessageEvent:
 				if ss.isToMe(ev.Msg.Text) {
 					ss.logger.Info("I have a new message")
-					res, err := ss.search.Search(ss.cleanMessage(ev.Text))
+					res, err := ss.search.Search(ss.cleanMessage(ev.Text), ev.Channel)
 					if err != nil {
 						ss.logger.Error(err)
 					}
