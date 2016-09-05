@@ -1,5 +1,6 @@
 # slackhistorybot
-Bot that receives and searchs slack history.
+Bot that receives and searchs slack history. Bot listens all your organization channels and save messages to bleve index.
+Bot searchs by mention of him
 
 Build with [slack](https://github.com/nlopes/slack) and [bleve](http://blevesearch.com)
 
