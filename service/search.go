@@ -1,6 +1,9 @@
 package service
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/store/goleveldb"
 	"github.com/blevesearch/blevex/lang/ru"
@@ -77,6 +80,10 @@ func (ss *SearchService) IndexMessage(data IndexData) error {
 }
 
 func (ss *SearchService) Search(query, channel string) (*bleve.SearchResult, error) {
+	if strings.Contains(query, "*") {
+		query = fmt.Sprintf("/%s/")
+		query = strings.Replace(query, "*", ".*", -1)
+	}
 	ch := bleve.NewTermQuery(channel)
 	mq := bleve.NewMatchPhraseQuery(query)
 	rq := bleve.NewRegexpQuery(query)
