@@ -117,5 +117,5 @@ func (ss *SlackService) isToMe(message string) bool {
 }
 
 func (ss *SlackService) cleanMessage(message string) string {
-	return strings.Replace(message, fmt.Sprintf("<@%s>", ss.me), "", -1)
+	return strings.Replace(message, fmt.Sprintf("<@%s> ", ss.me), "", -1)
 }
