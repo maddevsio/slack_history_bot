@@ -79,7 +79,8 @@ func (ss *SearchService) IndexMessage(data IndexData) error {
 func (ss *SearchService) Search(query, channel string) (*bleve.SearchResult, error) {
 	ch := bleve.NewTermQuery(channel)
 	mq := bleve.NewMatchPhraseQuery(query)
-	q := bleve.NewDisjunctionQuery([]bleve.Query{ch, mq})
+	rq := bleve.NewRegexpQuery(query)
+	q := bleve.NewDisjunctionQuery([]bleve.Query{ch, mq, rq})
 	search := bleve.NewSearchRequest(q)
 	search.Fields = []string{"username", "message", "channel", "timestamp"}
 	return ss.index.Search(search)
