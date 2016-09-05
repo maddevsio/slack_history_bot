@@ -80,7 +80,8 @@ func (ss *SearchService) Search(query, channel string) (*bleve.SearchResult, err
 	ch := bleve.NewTermQuery(channel)
 	mq := bleve.NewMatchPhraseQuery(query)
 	rq := bleve.NewRegexpQuery(query)
-	q := bleve.NewDisjunctionQuery([]bleve.Query{ch, mq, rq})
+	qsq := bleve.NewQueryStringQuery(query)
+	q := bleve.NewDisjunctionQuery([]bleve.Query{ch, mq, rq, qsq})
 	search := bleve.NewSearchRequest(q)
 	search.Fields = []string{"username", "message", "channel", "timestamp"}
 	return ss.index.Search(search)
