@@ -6,7 +6,7 @@ import (
 
 	"github.com/gen1us2k/log"
 
-	"github.com/maddevsio/slackhistorybot/conf"
+	"github.com/maddevsio/slack_history_bot/conf"
 )
 
 // SlackHistoryBot is main struct of daemon

@@ -1,4 +1,4 @@
-slackhistorybot
+slack_history_bot
 history_bot
 *.sw[o,p]
 .env

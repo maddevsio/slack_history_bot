@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/gen1us2k/log"
-	"github.com/maddevsio/slackhistorybot/conf"
-	"github.com/maddevsio/slackhistorybot/service"
+	"github.com/maddevsio/slack_history_bot/conf"
+	"github.com/maddevsio/slack_history_bot/service"
 	"github.com/urfave/cli"
 )
 
