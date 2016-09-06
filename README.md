@@ -1,4 +1,4 @@
-# slackhistorybot
+# slack_history_bot
 Bot that receives and searchs slack history. Bot listens all your organization channels and save messages to bleve index.
 Bot searchs by mention of him
 
@@ -15,8 +15,8 @@ Build with [slack](https://github.com/nlopes/slack) and [bleve](http://blevesear
 ```
 mkdir -p $GOPATH/src/github.com/maddevsio/
 cd $GOPATH/src/github.com/maddevsio
-git clone https://github.com/maddevsio/slackhistorybot
-cd slackhistorybot
+git clone https://github.com/maddevsio/slack_history_bot
+cd slack_history_bot
 make depends
 make
 ```
@@ -26,8 +26,8 @@ Or golang way
 ```
 mkdir -p $GOPATH/src/github.com/maddevsio/
 cd $GOPATH/src/github.com/maddevsio
-git clone https://github.com/maddevsio/slackhistorybot
-cd slackhistorybot
+git clone https://github.com/maddevsio/slack_history_bot
+cd slack_history_bot
 go get -v
 go build -v
 go install
