@@ -6,8 +6,8 @@ Built with [slack](https://github.com/nlopes/slack) and [bleve](http://blevesear
 
 ## Prerequisites
 
-1. Go installed
-2. Make installed(optional)
+1. [Go](https://golang.org/)
+2. [Make](https://www.gnu.org/software/make/)
 
 ## Installation
 
