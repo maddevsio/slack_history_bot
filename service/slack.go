@@ -57,6 +57,8 @@ func (ss *SlackService) Run() error {
 					if err != nil {
 						ss.logger.Error(err)
 					}
+					var results []string
+
 					for _, item := range res.Hits {
 						result := item.Fields
 						if result["channel"] == ev.Channel {
@@ -70,16 +72,34 @@ func (ss *SlackService) Run() error {
 								at := time.Unix(i, 0)
 
 								message := fmt.Sprintf(">[%s] %s: %s", at, user.Name, result["message"].(string))
-								ss.logger.Infof("Sending message %s to channel %s", message, ev.Channel)
-								ss.slackAPI.PostMessage(ev.Channel, message, slack.PostMessageParameters{})
+								results = append(results, message)
 								found = true
 							}
 						}
 					}
 					if !found {
 						ss.slackAPI.PostMessage(ev.Channel, "Not found", slack.PostMessageParameters{})
+						continue
 					}
-					continue
+
+					if len(results) > 10 {
+						ss.logger.Info("Uploading result")
+
+						ss.slackAPI.UploadFile(slack.FileUploadParameters{
+							Content:  strings.Join(results, "\n"),
+							Channels: []string{ev.Channel},
+						})
+					} else {
+						for _, message := range results {
+
+							ss.logger.Infof("Sending message %s to channel %s", message, ev.Channel)
+							ss.slackAPI.PostMessage(
+								ev.Channel,
+								message,
+								slack.PostMessageParameters{},
+							)
+						}
+					}
 				}
 				if ev.Msg.User == ss.me {
 					continue
