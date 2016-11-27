@@ -11,6 +11,7 @@ import (
 var (
 	Version    string
 	SlackToken string
+	DBPath     string
 	LogLevel   string
 )
 
@@ -34,6 +35,7 @@ func NewConfigurator() *Configuration {
 func (c *Configuration) fillConfig() *SlackBotConfig {
 	return &SlackBotConfig{
 		SlackToken: SlackToken,
+		DBPath:     DBPath,
 	}
 }
 
@@ -59,6 +61,13 @@ func (c *Configuration) setupFlags() []cli.Flag {
 			Usage:       "Set slack token",
 			EnvVar:      "SLACK_TOKEN",
 			Destination: &SlackToken,
+		},
+		cli.StringFlag{
+			Name:        "search_db",
+			Value:       "history.bleve",
+			Usage:       "Set database default",
+			Destination: &DBPath,
+			EnvVar:      "SEARCH_DB",
 		},
 		cli.StringFlag{
 			Name:        "loglevel",

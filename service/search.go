@@ -27,7 +27,7 @@ func (ss *SearchService) Run() error {
 func (ss *SearchService) Init(sh *SlackHistoryBot) error {
 	ss.sh = sh
 	ss.logger = log.NewLogger(ss.Name())
-	indexName := "history.bleve"
+	indexName := sh.Config().DBPath
 	index, err := bleve.Open(indexName)
 	if err == bleve.ErrorIndexPathDoesNotExist {
 		mapping := ss.buildMapping()
