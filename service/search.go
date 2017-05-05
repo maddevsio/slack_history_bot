@@ -5,6 +5,7 @@ import (
 
 	"github.com/blevesearch/bleve"
 	"github.com/blevesearch/bleve/index/store/goleveldb"
+	"github.com/blevesearch/bleve/mapping"
 	"github.com/blevesearch/blevex/lang/ru"
 	"github.com/gen1us2k/log"
 )
@@ -48,7 +49,7 @@ func (ss *SearchService) Init(sh *SlackHistoryBot) error {
 	ss.batch = index.NewBatch()
 	return nil
 }
-func (ss *SearchService) buildMapping() *bleve.IndexMapping {
+func (ss *SearchService) buildMapping() *mapping.IndexMappingImpl {
 	ruFieldMapping := bleve.NewTextFieldMapping()
 	ruFieldMapping.Analyzer = ru.AnalyzerName
 
@@ -85,7 +86,7 @@ func (ss *SearchService) Search(query, channel string) (*bleve.SearchResult, err
 	mq := bleve.NewMatchPhraseQuery(query)
 	rq := bleve.NewRegexpQuery(query)
 	qsq := bleve.NewQueryStringQuery(stringQuery)
-	q := bleve.NewDisjunctionQuery([]bleve.Query{ch, mq, rq, qsq})
+	q := bleve.NewDisjunctionQuery(ch, mq, rq, qsq)
 	search := bleve.NewSearchRequest(q)
 	search.Fields = []string{"username", "message", "channel", "timestamp"}
 	return ss.index.Search(search)
